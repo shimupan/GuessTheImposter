@@ -1,6 +1,7 @@
 import { Server } from 'socket.io';
 import http from 'http';
 import express from 'express';
+import { RoomSocket } from './RoomSocket.js';
 
 const app = express();
 
@@ -13,6 +14,9 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
     console.log('a user connected', socket.id);
+
+    RoomSocket(socket);
+
     socket.on('disconnect', () => {
         console.log('user disconnected', socket.id);
     });

@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import { app } from './socket/socket.js';
+import { app, server } from './socket/socket.js';
 import { rooms } from './routes/index.js';
 
 dotenv.config();
@@ -24,4 +24,4 @@ app.get('/', (req, res) => {
 app.use(rooms);
 
 const PORT = process.env.PORT || 3000; // Use environment variable for port or default to 3000
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
