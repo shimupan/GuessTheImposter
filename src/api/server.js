@@ -16,9 +16,8 @@ mongoose
    })
    .catch((err) => console.log('Database connection error: ', err));
 
-
 app.get('/', (req, res) => {
-    res.send('server is running');
+   res.send('server is running');
 });
 
 app.use(rooms);

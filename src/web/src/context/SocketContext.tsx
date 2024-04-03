@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 
 type SocketContextType = {
     socket: Socket | null;
-    onlineUsers: string[];
 };
 
 export const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -13,7 +12,6 @@ export const SocketContext = createContext<SocketContextType | undefined>(undefi
 export const SocketContextProvider = ({ children }: {children: ReactNode}) => {
     const navigate = useNavigate();
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
     const Auth = useContext(AuthContext);
 
     const createRoom = ({roomID}: {roomID: string}) => {
@@ -22,7 +20,6 @@ export const SocketContextProvider = ({ children }: {children: ReactNode}) => {
     };
 
     useEffect(() => {
-
         if ( Auth?.username !== '' ) {
             const socket = io(import.meta.env.VITE_SERVER || 'http://localhost:3000', {
                 query: {
@@ -35,7 +32,7 @@ export const SocketContextProvider = ({ children }: {children: ReactNode}) => {
     }, [Auth]);
 
     return (
-        <SocketContext.Provider value={{socket, onlineUsers}}>
+        <SocketContext.Provider value={{socket}}>
             {children}
         </SocketContext.Provider>
     );
