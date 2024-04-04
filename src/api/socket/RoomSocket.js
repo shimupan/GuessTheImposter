@@ -1,4 +1,5 @@
 import ActiveRooms from '../models/ActiveRooms.js';
+import WordList from '../models/WordList.js';
 
 export let RoomtoUsers = new Map();
 export let UsertoRoom = new Map();
@@ -61,21 +62,29 @@ export const RoomSocket = (socket, io) => {
       io.to(id).emit('users-in-room', usersInRoom);
    };
 
-   const loadWord = (id) => {
+   const loadWord = async (id) => {
       const players = Array.from(RoomtoUsers.get(id));
-      const category = 'video game';
-      const word = ["Valorant","CSGO","Minecraft","Crab Game"];
-      
+
+      // Check for the number of categories
+      const count = await WordList.countDocuments();
+      const randomIndex = Math.floor(Math.random() * count);
+
+      // Fetch random category
+      const randomize = await WordList.findOne().skip(randomIndex);
+
+      const { Category, Words } = randomize;
+
+      // Make the imposter and choose word
       const randomPlayer = Math.floor(Math.random() * players.length);
-      const randomWord = Math.floor(Math.random() * word.length);
+      const randomWord = Math.floor(Math.random() * Words.length);
 
-      // Emit the category to the random player
-      io.to(players[randomPlayer]).emit('category', category);
-
+      // Emit the category to the imposter
+      io.to(players[randomPlayer]).emit('category', [Category, "Imposter"]);
+      
       // Emit the random word to everyone else
       players.forEach((player) => {
          if (player !== players[randomPlayer]) {
-            io.to(player).emit('word', word[randomWord]);
+            io.to(player).emit('word', [Words[randomWord], "Normal"]);
          }
       });
    };

@@ -1,10 +1,13 @@
 import { useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { SocketContext } from '../context/SocketContext';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const Home = () => {
    const Auth = useContext(AuthContext);
    const Socket = useContext(SocketContext);
+
    useEffect(() => {
       const username = localStorage.getItem('username');
       if (username) {
@@ -14,13 +17,27 @@ export const Home = () => {
 
    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      const id = toast.loading('Updating username...');
       if (!e.currentTarget.username.value) {
-         alert('Please enter a username');
+         toast.update(id, {
+            render: 'Please Enter a Username!',
+            type: 'error',
+            isLoading: false,
+            autoClose: 1000,
+            hideProgressBar: false,
+         });
          return;
       }
       localStorage.setItem('username', e.currentTarget.username.value);
       console.log(e.currentTarget.username.value);
       Auth?.setUsername(e.currentTarget.username.value);
+      toast.update(id, {
+         render: 'Username Updated!',
+         type: 'success',
+         isLoading: false,
+         autoClose: 1000,
+         hideProgressBar: false,
+      });
    };
 
    const CreateRoom = () => {
@@ -34,9 +51,9 @@ export const Home = () => {
          <div className='bg-[#0077B6] h-screen overflow-hidden flex items-center justify-center'>
             <div className='bg-[#90E0EF] lg:w-5/12 md:6/12 w-6/12 shadow-3xl'>
                <form className='p-12 md:p-24' onSubmit={handleSubmit}>
-                  <div className='flex items-center text-lg'>
+                  <div className='flex flex-col md:flex-row items-center text-lg'>
                      <svg
-                        className='absolute ml-3'
+                        className='absolute ml-3 hidden md:block'
                         width='24'
                         viewBox='0 0 24 24'
                      >
@@ -45,12 +62,12 @@ export const Home = () => {
                      <input
                         type='text'
                         id='username'
-                        className='bg-gray-200 pl-12 py-2 md:py-4 focus:outline-none w-full'
+                        className='bg-gray-200 text-center py-2 md:py-4 focus:outline-none w-full'
                         placeholder={Auth?.username.toString() || 'Username'}
                      />
                      <button
                         type='submit'
-                        className='font-medium text-white uppercase bg-[#03045E] h-[3.9rem] hover:bg-[#0353A4] transition duration-200 cursor-pointer'
+                        className='font-medium text-white uppercase bg-[#03045E] h-[3.9rem] hover:bg-[#0353A4] transition duration-200 cursor-pointer mt-2 md:mt-0'
                      >
                         Confirm
                      </button>
@@ -73,6 +90,7 @@ export const Home = () => {
                   </div>
                </form>
             </div>
+            <ToastContainer position="top-center" />
          </div>
       </>
    );
