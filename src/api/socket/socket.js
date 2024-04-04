@@ -30,7 +30,7 @@ io.on('connection', (socket) => {
    socket.on('disconnect', async () => {
       const room = UsertoRoom.get(socket.id);
       const userSet = RoomtoUsers.get(room);
-
+      console.log(userSet)
       if (userSet) {
          userSet.delete(socket.id);
 
