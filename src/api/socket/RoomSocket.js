@@ -7,6 +7,7 @@ export let SocketIDtoUsername = new Map();
 
 export const RoomSocket = (socket, io) => {
 
+   // Socket catcher for room creation event
    const createRoom = async () => {
       // Create a room with ID and add to the database along with the user
       
@@ -39,6 +40,7 @@ export const RoomSocket = (socket, io) => {
       socket.emit('room-created', { roomID: roomID });
    };
 
+   // Socket catcher for room joining event
    const joinRoom = async (id) => {
       if (!(await checkID(id))) {
          socket.emit('room-not-found', { roomID: id });
@@ -62,7 +64,8 @@ export const RoomSocket = (socket, io) => {
       io.to(id).emit('users-in-room', usersInRoom);
    };
 
-   const loadWord = async (id) => {
+   // Socket catcher for word loading event
+   const loadWord = async (id, allImposterChances, allNormalChances) => {
       const players = Array.from(RoomtoUsers.get(id));
 
       // Check for the number of categories
@@ -74,9 +77,25 @@ export const RoomSocket = (socket, io) => {
 
       const { Category, Words } = randomize;
 
+      
       // Make the imposter and choose word
       const randomPlayer = Math.floor(Math.random() * players.length);
       const randomWord = Math.floor(Math.random() * Words.length);
+      
+      // If the random number is less than or equal to allImposterChances, emit the category to everyone
+      if (Math.random() <= allImposterChances / 100) {
+         players.forEach((player) => {
+         io.to(player).emit('category', [Category, "Imposter"]);
+         });
+         return;
+      }
+      // If the random number is less than or equal to allNormalChances, emit the word to everyone
+      else if (Math.random() <= allNormalChances / 100) {
+         players.forEach((player) => {
+         io.to(player).emit('word', [Words[randomWord], "Normal"]);
+         });
+         return;
+      }
 
       // Emit the category to the imposter
       io.to(players[randomPlayer]).emit('category', [Category, "Imposter"]);
@@ -94,6 +113,8 @@ export const RoomSocket = (socket, io) => {
    socket.on('load-word', loadWord);
 };
 
+// Helper function to generate a random room ID
+// And verify that it is unique
 const generateRoomID = async () => {
    let roomID = '';
    while (!roomID) {
@@ -110,6 +131,7 @@ const generateRoomID = async () => {
    }
 };
 
+// Helper function to check if a room ID exists in the database
 const checkID = async (id) => {
    try {
       let room = await ActiveRooms.findOne({ RoomID: id });

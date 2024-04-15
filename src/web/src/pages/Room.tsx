@@ -15,14 +15,18 @@ export const Room = () => {
   const [room, setRoom] = useState(true);
   const [users, setUsers] = useState<string[]>([]);
   const [controls, setControls] = useState<string>("Start Game");
+  const [allImposterChances, setAllImposterChances] = useState<number>(5);
+  const [allNormalChances, setAllNormalChances] = useState<number>(5);
   const [word, setWord] = useState<string>(
     "Waiting for leader to start game..."
   );
 
   // Can be refactored into a separate component
+  /*
   const [currentMessage, setCurrentMessage] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
-
+  */
+ 
   // Check for Login
   if (!localStorage.getItem("username")) {
     return <Username />;
@@ -69,14 +73,16 @@ export const Room = () => {
 
   const handleGameState = () => {
     setControls("Next Round");
-    Socket?.socket?.emit("load-word", roomId);
+    Socket?.socket?.emit("load-word", roomId, allImposterChances, allNormalChances);
   };
 
   // can be refactored into a separate component
+  /*
   const handleSendMessage = () => {
     setMessages((prevMessages) => [...prevMessages, currentMessage]);
     setCurrentMessage("");
   };
+  */
 
   return room ? (
     <>
@@ -87,12 +93,45 @@ export const Room = () => {
               <h1>{word}</h1>
             </div>
             {users[0] === Auth?.username && (
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-12"
-                onClick={handleGameState}
-              >
-                {controls}
-              </button>
+              <>
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-12"
+                  onClick={handleGameState}
+                >
+                  {controls}
+                </button>
+                {/* Choosing mutation odds */}
+                <div className="mt-10 flex flex-col space-y-3 text-white">
+                  <div className="flex items-center space-x-2">
+                    <label htmlFor="imposterChances" className="text-lg">All Imposter Chances:</label>
+                    <input
+                      type="number"
+                      id="imposterChances"
+                      name="imposterChances"
+                      min="0"
+                      max="100"
+                      value={allImposterChances}
+                      onChange={(e) => setAllImposterChances(Number(e.target.value))}
+                      className="py-1 px-2 text-black"
+                    />
+                    <span className="text-lg">%</span>
+                  </div>
+                  <div className="flex items-center space-x-2 justify-end">
+                    <label htmlFor="normalChances" className="text-lg">All Normal Chances:</label>
+                    <input
+                      type="number"
+                      id="normalChances"
+                      name="allnormalChances"
+                      min="0"
+                      max="100"
+                      value={allNormalChances}
+                      onChange={(e) => setAllNormalChances(Number(e.target.value))}
+                      className="py-1 px-2 text-black"
+                    />
+                    <span className="text-lg">%</span>
+                  </div>
+                </div>
+              </>
             )}
           </div>
           <div className="md:w-1/4 md:overflow-auto">
@@ -113,7 +152,8 @@ export const Room = () => {
           </div>
         </div>
 
-        {/* Can be refactored into a separate component */}
+        {
+        /* Can be refactored into a separate component 
         <div className="w-3/4">
           <div className="overflow-auto h-64 w-full mb-4 border rounded-lg p-3">
             {messages.map((message, index) => (
@@ -135,7 +175,9 @@ export const Room = () => {
               Send
             </button>
           </div>
+          
         </div>
+        */}
         <ToastContainer position="top-center" />
       </div>
     </>
