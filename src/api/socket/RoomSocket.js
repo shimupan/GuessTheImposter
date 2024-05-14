@@ -83,9 +83,9 @@ export const RoomSocket = (socket, io) => {
       const randomWord = Math.floor(Math.random() * Words.length);
       // If specialEvent is triggered
       if (Math.random() <= specialEvent / 100) {
-         const events = [false, false, false, false, false, false, false, false, true];
-         //const randomEvent = Math.floor(Math.random() * events.length);
-         //events[randomEvent] = true;
+         const events = [false, false, false, false, false, false, false, false, false];
+         const randomEvent = Math.floor(Math.random() * events.length);
+         events[randomEvent] = true;
          console.log(events);
          // Event 1: Every user is an imposter
          if (events[0]) {
