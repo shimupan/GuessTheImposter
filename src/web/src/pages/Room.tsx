@@ -15,11 +15,11 @@ export const Room = () => {
   const [room, setRoom] = useState(true);
   const [users, setUsers] = useState<string[]>([]);
   const [controls, setControls] = useState<string>("Start Game");
-  const [allImposterChances, setAllImposterChances] = useState<number>(5);
-  const [allNormalChances, setAllNormalChances] = useState<number>(5);
+  const [specialEvent, setSpecialEvent] = useState<number>(5);
   const [word, setWord] = useState<string>(
     "Waiting for leader to start game..."
   );
+  const [imposter, setImposter] = useState<string>("");
 
   // Can be refactored into a separate component
   /*
@@ -28,10 +28,16 @@ export const Room = () => {
   */
  
   // Check for Login
+  useEffect(() => {
+    // Check for Login
+    const username = localStorage.getItem("username");
+    if (username) {
+      Auth?.setUsername(username);
+    }
+  }, []); // Empty dependency array means this effect runs once when the component mounts
+  
   if (!localStorage.getItem("username")) {
     return <Username />;
-  } else {
-    Auth?.setUsername(localStorage.getItem("username") || "");
   }
 
   // Join Socket Room
@@ -53,14 +59,27 @@ export const Room = () => {
       Socket.socket.on("category", (category) => {
         console.log("Category:", category);
         setWord(category[0]);
-        toast("Your Role this Round is: " + category[1]);
+        toast("Your Role this Round is: " + category[2]);
+      });
+
+      // Agent
+      Socket.socket.on("agent", (Agent) => {
+        console.log("Agent:", Agent);
+        setWord(Agent[0] + ": " + Agent[1]);
+        if(Agent[3] == "Double Agent") {
+          setImposter("Protect: " + Agent[2]);
+        } else if (Agent[3] == "Mirror") { 
+          setImposter("Mirror: " + Agent[2]);
+        }
+        
+        toast("Your Role this Round is: " + Agent[3]);
       });
 
       // Listen for the 'word' event
       Socket.socket.on("word", (word) => {
         console.log("Word:", word);
-        setWord(word[0]);
-        toast("Your Role this Round is: " + word[1]);
+        setWord(word[0] + ": " + word[1]);
+        toast("Your Role this Round is: " + word[2]);
       });
     }
     return () => {
@@ -73,7 +92,7 @@ export const Room = () => {
 
   const handleGameState = () => {
     setControls("Next Round");
-    Socket?.socket?.emit("load-word", roomId, allImposterChances, allNormalChances);
+    Socket?.socket?.emit("load-word", roomId, specialEvent);
   };
 
   // can be refactored into a separate component
@@ -86,11 +105,12 @@ export const Room = () => {
 
   return room ? (
     <>
-      <div className="h-screen w-screen">
-        <div className="md:flex">
-          <div className="bg-[#03045E] h-3/5 w-full lg:w-3/4 flex flex-col justify-center items-center text-center rounded-br-xl py-28">
+      <div className="h-screen w-screen overflow-x-hidden overflow-y-auto">
+        <div className="flex flex-col">
+          <div className="bg-[#03045E] h-3/5 w-full flex flex-col justify-center items-center text-center rounded-br-xl py-28">
             <div className="w-1/2 max-w-lg bg-white rounded-lg py-32 text-center">
               <h1>{word}</h1>
+              <h1>{imposter}</h1>
             </div>
             {users[0] === Auth?.username && (
               <>
@@ -103,29 +123,15 @@ export const Room = () => {
                 {/* Choosing mutation odds */}
                 <div className="mt-10 flex flex-col space-y-3 text-white">
                   <div className="flex items-center space-x-2">
-                    <label htmlFor="imposterChances" className="text-lg">All Imposter Chances:</label>
+                    <label htmlFor="specialEventChances" className="text-lg">Special Event Chances:</label>
                     <input
                       type="number"
-                      id="imposterChances"
-                      name="imposterChances"
+                      id="specialEventChances"
+                      name="specialEventChances"
                       min="0"
                       max="100"
-                      value={allImposterChances}
-                      onChange={(e) => setAllImposterChances(Number(e.target.value))}
-                      className="py-1 px-2 text-black"
-                    />
-                    <span className="text-lg">%</span>
-                  </div>
-                  <div className="flex items-center space-x-2 justify-end">
-                    <label htmlFor="normalChances" className="text-lg">All Normal Chances:</label>
-                    <input
-                      type="number"
-                      id="normalChances"
-                      name="allnormalChances"
-                      min="0"
-                      max="100"
-                      value={allNormalChances}
-                      onChange={(e) => setAllNormalChances(Number(e.target.value))}
+                      value={specialEvent}
+                      onChange={(e) => setSpecialEvent(Number(e.target.value))}
                       className="py-1 px-2 text-black"
                     />
                     <span className="text-lg">%</span>
@@ -134,10 +140,10 @@ export const Room = () => {
               </>
             )}
           </div>
-          <div className="md:w-1/4 md:overflow-auto">
+          <div className="md:overflow-auto flex flex-wrap justify-start">
             {users.map((user) => {
               if (user === users[0]) {
-                return <UserProfile key={user} username={user} leader={true} />;
+                return <UserProfile key={user} username={user} leader={true} className={"mt-3"}/>;
               } else {
                 return (
                   <UserProfile

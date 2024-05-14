@@ -11,11 +11,12 @@ export const UserProfile = ({username, leader, className}: {username: string, le
             setNumber(parseInt(localStorage.getItem('number') || '0'));
         }
     }, []);
+
     return (
-        <div className={`max-w-md mx-auto bg-white rounded-lg shadow-md p-5 ${className}`}>
+        <div className={`mx-2 bg-white rounded-lg shadow-md p-5 ${className}`}>
             <img className="w-32 h-32 rounded-full mx-auto" src={`https://cdn.discordapp.com/embed/avatars/${number}.png`} alt="Profile picture" />
             <h2 className="text-center text-2xl font-semibold mt-3">{username}</h2>
-            {leader && <p className="text-center text-sm text-gray-500">Leader</p>}
+            <p className="text-center text-sm text-gray-500">{leader ? 'Leader' : 'Player'}</p>
         </div>
     );
 };
