@@ -183,11 +183,12 @@ export const RoomSocket = (socket, io) => {
          // Event 8: The mirror must copy what another guy said but differently
          else if (events[8]) {
             const randomPlayer2 = Math.floor(Math.random() * players.length);
+            const randomPlayer3 = Math.floor(Math.random() * players.length);
             players.forEach((player) => {
                if (player === players[randomPlayer]) {
                   io.to(player).emit('category', [Category, "", "Imposter"]);
                } else if (player === players[randomPlayer2]) {
-                  io.to(player).emit('agent', [Category, Words[randomWord], SocketIDtoUsername.get(players[randomPlayer]), "Mirror"]);
+                  io.to(player).emit('agent', [Category, Words[randomWord], SocketIDtoUsername.get(players[randomPlayer3]), "Mirror"]);
                } else {
                   io.to(player).emit('word', [Category, Words[randomWord], "Normal"]);
                }

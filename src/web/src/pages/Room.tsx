@@ -19,7 +19,6 @@ export const Room = () => {
   const [word, setWord] = useState<string>(
     "Waiting for leader to start game..."
   );
-  const [imposter, setImposter] = useState<string>("");
 
   // Can be refactored into a separate component
   /*
@@ -65,13 +64,13 @@ export const Room = () => {
       // Agent
       Socket.socket.on("agent", (Agent) => {
         console.log("Agent:", Agent);
-        setWord(Agent[0] + ": " + Agent[1]);
+        let str = Agent[0] + ": " + Agent[1];
         if(Agent[3] == "Double Agent") {
-          setImposter("Protect: " + Agent[2]);
+          str += "\n | Protect: " + Agent[2];
         } else if (Agent[3] == "Mirror") { 
-          setImposter("Mirror: " + Agent[2]);
+          str += "\n | Mirror: " + Agent[2];
         }
-        
+        setWord(str);
         toast("Your Role this Round is: " + Agent[3]);
       });
 
@@ -92,6 +91,7 @@ export const Room = () => {
 
   const handleGameState = () => {
     setControls("Next Round");
+    console.log('Imposter state reset');
     Socket?.socket?.emit("load-word", roomId, specialEvent);
   };
 
@@ -110,7 +110,6 @@ export const Room = () => {
           <div className="bg-[#03045E] h-3/5 w-full flex flex-col justify-center items-center text-center rounded-br-xl py-28">
             <div className="w-1/2 max-w-lg bg-white rounded-lg py-32 text-center">
               <h1>{word}</h1>
-              <h1>{imposter}</h1>
             </div>
             {users[0] === Auth?.username && (
               <>
