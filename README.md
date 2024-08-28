@@ -51,7 +51,7 @@ The game's core ideas are very simple:
      Try to blend in as the reverse imposter
 
      9) The Mirror
-     The Mirror is randomly assigend a normal player and must copy what the normal player said but differently
+     The Mirror is randomly assigend a normal player and must copy what the normal player said but differently.
 ```
 
 And many more to come! (Suggestions are appreciated)
